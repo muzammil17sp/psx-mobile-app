@@ -48,6 +48,15 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIAppFonts</key>
+<array>
+  <string>AntDesign.ttf</string>
+  <string>Ionicons.ttf</string>
+  <string>Entypo.ttf</string>
+  <string>Feather.ttf</string>
+  <!-- Add all the font files you use here from the node_modules directory -->
+</array>
+
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>

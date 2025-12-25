@@ -1,12 +1,20 @@
 import React from 'react';
-import { Text } from 'react-native';
-import SafeScreen from '../../components/common/SafeArea';
+import { View } from 'react-native';
+import MarketSummaryCard from './components/MarketSummary';
+import NewsFeed from './components/NewsFeed';
 
 const HomeScreen = () => {
   return (
-    <SafeScreen>
-      <Text style={{margin:20}}>Home Screen</Text>
-    </SafeScreen>
+    <View style={{ backgroundColor: '#121212', flex: 1 }}>
+      <MarketSummaryCard
+        data={{
+          symbol: 'KSE100',
+          close: 170830.22,
+          change: -243.51,
+        }}
+      />
+      <NewsFeed />
+    </View>
   );
 };
 

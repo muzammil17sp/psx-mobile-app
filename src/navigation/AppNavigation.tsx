@@ -1,8 +1,13 @@
+/* eslint-disable react/no-unstable-nested-components */
+/* eslint-disable react-native/no-inline-styles */
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/Home/HomeScreen';
-import ProfileScreen from '../screens/Profile/ProfileScreen';
 import Icon from 'react-native-vector-icons/Feather';
+import AntIcon from 'react-native-vector-icons/AntDesign';
 import TabButton from '../components/common/TabButton';
+import LogoTitle from '../components/ui/logo';
+import { TouchableOpacity } from 'react-native';
+import StockListScreen from '../screens/Stocks/StockListScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -10,9 +15,35 @@ const AppNavigation = () => {
   return (
     <Tab.Navigator
       screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#007AFF',
-        tabBarInactiveTintColor: '#999',
+        headerTitle: () => <LogoTitle />,
+        headerTitleAlign: 'left',
+        headerRight: () => (
+          <TouchableOpacity style={{ marginRight: 15 }}>
+            <Icon name="settings" size={28} color="#F5F5F5" />
+          </TouchableOpacity>
+        ),
+        headerStyle: {
+          backgroundColor: '#1E1E1E',
+          borderBottomWidth: 0,
+          elevation: 0,
+          shadowOpacity: 0,
+        },
+        headerTintColor: '#F5F5F5',
+
+        tabBarStyle: {
+          backgroundColor: '#1E1E1E',
+          borderTopWidth: 0,
+          height: 70,
+          paddingBottom: 10,
+          paddingTop: 10,
+        },
+        tabBarActiveTintColor: '#81C784',
+        tabBarInactiveTintColor: '#757575',
+
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+        },
       }}
     >
       <Tab.Screen
@@ -20,23 +51,22 @@ const AppNavigation = () => {
         component={HomeScreen}
         options={{
           tabBarLabel: 'Home',
-          tabBarIcon: (props) => (
-            <TabButton  {...props}>
-              <Icon name="home" size={props.size} color={props.color} />
-            </TabButton>
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="home" size={size} color={color} />
           ),
+          tabBarButton: props => <TabButton {...props} />,
         }}
       />
 
       <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
+        name="Stocks"
+        component={StockListScreen}
         options={{
-          tabBarIcon: (props) => (
-            <TabButton {...props}>
-              <Icon name="home" size={props.size} color={props.color} />
-            </TabButton>
+          tabBarLabel: 'Stocks',
+          tabBarIcon: ({ color, size }) => (
+            <AntIcon name="sound" size={size} color={color} />
           ),
+          tabBarButton: props => <TabButton {...props} />,
         }}
       />
     </Tab.Navigator>

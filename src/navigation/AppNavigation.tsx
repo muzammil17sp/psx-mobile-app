@@ -3,11 +3,14 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/Home/HomeScreen';
 import Icon from 'react-native-vector-icons/Feather';
-import AntIcon from 'react-native-vector-icons/AntDesign';
 import TabButton from '../components/common/TabButton';
 import LogoTitle from '../components/ui/logo';
 import { TouchableOpacity } from 'react-native';
 import StockListScreen from '../screens/Stocks/StockListScreen';
+import StockSvg from '../components/ui/svg/StockSvg';
+import WishlistScreen from '../screens/Wishlist/WishlistScreen';
+import PortfolioScreen from '../screens/Portfolio/PortfolioScreen';
+import PortfolioSvg from '../components/ui/svg/PortfolioSvg';
 
 const Tab = createBottomTabNavigator();
 
@@ -57,6 +60,28 @@ const AppNavigation = () => {
           tabBarButton: props => <TabButton {...props} />,
         }}
       />
+        <Tab.Screen
+          name="Portfolio"
+          component={PortfolioScreen}
+          options={{
+            tabBarLabel: 'Portfolio',
+            tabBarIcon: ({ color, size }) => (
+              <Icon name='shopping-bag' size={size}  color={color} />
+            ),
+            tabBarButton: props => <TabButton {...props} />,
+          }}
+        />
+      <Tab.Screen
+        name="Wishlist"
+        component={WishlistScreen}
+        options={{
+          tabBarLabel: 'Wishlist',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="heart" size={size} color={color} />
+          ),
+          tabBarButton: props => <TabButton {...props} />,
+        }}
+      />
 
       <Tab.Screen
         name="Stocks"
@@ -64,7 +89,7 @@ const AppNavigation = () => {
         options={{
           tabBarLabel: 'Stocks',
           tabBarIcon: ({ color, size }) => (
-            <AntIcon name="sound" size={size} color={color} />
+            <StockSvg height={size} width={size} fill={color} />
           ),
           tabBarButton: props => <TabButton {...props} />,
         }}

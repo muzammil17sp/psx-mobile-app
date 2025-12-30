@@ -1,12 +1,45 @@
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-const PortfolioStock = () => {
+type RootStackParamList = {
+  MainTabs: undefined;
+  Transaction: undefined;
+  PortfolioDetail: {
+    stockName: string;
+    stockSymbol?: string;
+  };
+};
+
+type NavigationProp = StackNavigationProp<RootStackParamList>;
+
+interface PortfolioStockProps {
+  stockName?: string;
+  stockSymbol?: string;
+}
+
+const PortfolioStock = ({ 
+  stockName = 'Hubco', 
+  stockSymbol 
+}: PortfolioStockProps) => {
+  const navigation = useNavigation<NavigationProp>();
   const BULL_COLOR = '#81C784';
   const BEAR_COLOR = '#E57373';
 
+  const handlePress = () => {
+    navigation.navigate('PortfolioDetail', {
+      stockName,
+      stockSymbol,
+    });
+  };
+
   return (
-    <View style={styles.container}>
+    <TouchableOpacity 
+      style={styles.container}
+      onPress={handlePress}
+      activeOpacity={0.7}
+    >
       <View style={styles.detailContainer}>
         <View style={styles.imageContainer}>
           <Image
@@ -18,7 +51,7 @@ const PortfolioStock = () => {
           />
         </View>
         <View>
-          <Text style={styles.title}>Hubco</Text>
+          <Text style={styles.title}>{stockName}</Text>
           <Text style={styles.description}>
             POWER GENERATION & DISTRIBUTION
           </Text>
@@ -46,7 +79,7 @@ const PortfolioStock = () => {
           <Text style={styles.detailAmount}>10000</Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

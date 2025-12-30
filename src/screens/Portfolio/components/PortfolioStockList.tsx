@@ -10,7 +10,12 @@ const PortfolioStockList = () => {
       <FlatList
         data={news}
         keyExtractor={item => item.article_id}
-        renderItem={() => <PortfolioStock />}
+        renderItem={({ item, index }) => (
+          <PortfolioStock 
+            stockName={`Stock ${index + 1}`}
+            stockSymbol={`SYM${index + 1}`}
+          />
+        )}
       />
     </View>
   );

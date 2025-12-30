@@ -14,7 +14,7 @@ import { news } from '../../data/news';
 
 interface Props {
   value: string;
-  onChange: React.Dispatch<React.SetStateAction<T>>;
+  onChange: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const AutoComplete = (props: Props) => {
@@ -57,8 +57,8 @@ const AutoComplete = (props: Props) => {
       <TextInput
         style={styles.input}
         value={props.value}
-        placeholder="Enter Value"
-        placeholderTextColor="#F5F5F5"
+        placeholder="Search stock symbol..."
+        placeholderTextColor="#757575"
         onChangeText={(e: string) => props.onChange(e)}
       />
       {props.value !== '' && news.length && (
@@ -108,8 +108,7 @@ export default AutoComplete;
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 6,
-    marginVertical: 12,
+    margin: 12,
     position:"relative"
   },
   input: {
@@ -117,7 +116,9 @@ const styles = StyleSheet.create({
     padding: 16,
     color: '#F5F5F5',
     borderRadius: 6,
-    fontSize: 14
+    fontSize: 14,
+    borderWidth: 1,
+    borderColor: '#2C2C2C',
   },
   optionListContainer: {
     backgroundColor: '#1E1E1E',

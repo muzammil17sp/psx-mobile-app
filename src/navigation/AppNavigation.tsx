@@ -1,30 +1,37 @@
-/* eslint-disable react/no-unstable-nested-components */
-/* eslint-disable react-native/no-inline-styles */
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/Home/HomeScreen';
+import { createStackNavigator } from '@react-navigation/stack';
+import MainTabNavigator from './MainTabNavigator';
+import TransactionScreen from '../screens/Transaction/TransactionScreen';
+import PortfolioDetailScreen from '../screens/PortfolioDetail/PortfolioDetailScreen';
+import EditStockScreen from '../screens/EditStock/EditStockScreen';
+import SettingsScreen from '../screens/Settings/SettingsScreen';
+import LoginScreen from '../screens/Login/LoginScreen';
+import SignUpScreen from '../screens/SignUp/SignUpScreen';
 import Icon from 'react-native-vector-icons/Feather';
-import TabButton from '../components/common/TabButton';
-import LogoTitle from '../components/ui/logo';
 import { TouchableOpacity } from 'react-native';
-import StockListScreen from '../screens/Stocks/StockListScreen';
-import StockSvg from '../components/ui/svg/StockSvg';
-import WishlistScreen from '../screens/Wishlist/WishlistScreen';
-import PortfolioScreen from '../screens/Portfolio/PortfolioScreen';
-import PortfolioSvg from '../components/ui/svg/PortfolioSvg';
 
-const Tab = createBottomTabNavigator();
+export type RootStackParamList = {
+  MainTabs: undefined;
+  Transaction: undefined;
+  PortfolioDetail: {
+    stockName: string;
+    stockSymbol?: string;
+  };
+  EditStock: {
+    stockName: string;
+    stockSymbol?: string;
+    transactionId?: string;
+  };
+  Settings: undefined;
+  Login: undefined;
+  SignUp: undefined;
+};
+
+const Stack = createStackNavigator<RootStackParamList>();
 
 const AppNavigation = () => {
   return (
-    <Tab.Navigator
+    <Stack.Navigator
       screenOptions={{
-        headerTitle: () => <LogoTitle />,
-        headerTitleAlign: 'left',
-        headerRight: () => (
-          <TouchableOpacity style={{ marginRight: 15 }}>
-            <Icon name="settings" size={28} color="#F5F5F5" />
-          </TouchableOpacity>
-        ),
         headerStyle: {
           backgroundColor: '#1E1E1E',
           borderBottomWidth: 0,
@@ -32,69 +39,114 @@ const AppNavigation = () => {
           shadowOpacity: 0,
         },
         headerTintColor: '#F5F5F5',
-
-        tabBarStyle: {
-          backgroundColor: '#1E1E1E',
-          borderTopWidth: 0,
-          height: 70,
-          paddingBottom: 10,
-          paddingTop: 10,
-        },
-        tabBarActiveTintColor: '#81C784',
-        tabBarInactiveTintColor: '#757575',
-
-        tabBarLabelStyle: {
-          fontSize: 12,
+        headerTitleStyle: {
           fontWeight: '600',
+          fontSize: 18,
         },
       }}
     >
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
+      <Stack.Screen
+        name="MainTabs"
+        component={MainTabNavigator}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Transaction"
+        component={TransactionScreen}
         options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="home" size={size} color={color} />
+          title: 'Transaction',
+          headerLeft: ({ onPress }) => (
+            <TouchableOpacity
+              onPress={onPress}
+              style={{ marginLeft: 15 }}
+              activeOpacity={0.7}
+            >
+              <Icon name="arrow-left" size={24} color="#F5F5F5" />
+            </TouchableOpacity>
           ),
-          tabBarButton: props => <TabButton {...props} />,
         }}
       />
-        <Tab.Screen
-          name="Portfolio"
-          component={PortfolioScreen}
-          options={{
-            tabBarLabel: 'Portfolio',
-            tabBarIcon: ({ color, size }) => (
-              <Icon name='shopping-bag' size={size}  color={color} />
-            ),
-            tabBarButton: props => <TabButton {...props} />,
-          }}
-        />
-      <Tab.Screen
-        name="Wishlist"
-        component={WishlistScreen}
-        options={{
-          tabBarLabel: 'Wishlist',
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="heart" size={size} color={color} />
+      <Stack.Screen
+        name="PortfolioDetail"
+        component={PortfolioDetailScreen}
+        options={({ route }) => ({
+          title: route.params?.stockName || 'Portfolio Details',
+          headerLeft: ({ onPress }) => (
+            <TouchableOpacity
+              onPress={onPress}
+              style={{ marginLeft: 15 }}
+              activeOpacity={0.7}
+            >
+              <Icon name="arrow-left" size={24} color="#F5F5F5" />
+            </TouchableOpacity>
           ),
-          tabBarButton: props => <TabButton {...props} />,
+        })}
+      />
+      <Stack.Screen
+        name="EditStock"
+        component={EditStockScreen}
+        options={({ route }) => ({
+          title: `Edit ${route.params?.stockName || 'Stock'}`,
+          headerLeft: ({ onPress }) => (
+            <TouchableOpacity
+              onPress={onPress}
+              style={{ marginLeft: 15 }}
+              activeOpacity={0.7}
+            >
+              <Icon name="arrow-left" size={24} color="#F5F5F5" />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          title: 'Settings',
+          headerLeft: ({ onPress }) => (
+            <TouchableOpacity
+              onPress={onPress}
+              style={{ marginLeft: 15 }}
+              activeOpacity={0.7}
+            >
+              <Icon name="arrow-left" size={24} color="#F5F5F5" />
+            </TouchableOpacity>
+          ),
         }}
       />
-
-      <Tab.Screen
-        name="Stocks"
-        component={StockListScreen}
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
         options={{
-          tabBarLabel: 'Stocks',
-          tabBarIcon: ({ color, size }) => (
-            <StockSvg height={size} width={size} fill={color} />
+          title: 'Login',
+          headerLeft: ({ onPress }) => (
+            <TouchableOpacity
+              onPress={onPress}
+              style={{ marginLeft: 15 }}
+              activeOpacity={0.7}
+            >
+              <Icon name="arrow-left" size={24} color="#F5F5F5" />
+            </TouchableOpacity>
           ),
-          tabBarButton: props => <TabButton {...props} />,
         }}
       />
-    </Tab.Navigator>
+      <Stack.Screen
+        name="SignUp"
+        component={SignUpScreen}
+        options={{
+          title: 'Sign Up',
+          headerLeft: ({ onPress }) => (
+            <TouchableOpacity
+              onPress={onPress}
+              style={{ marginLeft: 15 }}
+              activeOpacity={0.7}
+            >
+              <Icon name="arrow-left" size={24} color="#F5F5F5" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+    </Stack.Navigator>
   );
 };
 

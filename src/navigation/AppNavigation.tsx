@@ -4,8 +4,6 @@ import TransactionScreen from '../screens/Transaction/TransactionScreen';
 import PortfolioDetailScreen from '../screens/PortfolioDetail/PortfolioDetailScreen';
 import EditStockScreen from '../screens/EditStock/EditStockScreen';
 import SettingsScreen from '../screens/Settings/SettingsScreen';
-import LoginScreen from '../screens/Login/LoginScreen';
-import SignUpScreen from '../screens/SignUp/SignUpScreen';
 import Icon from 'react-native-vector-icons/Feather';
 import { TouchableOpacity } from 'react-native';
 
@@ -103,38 +101,6 @@ const AppNavigation = () => {
         component={SettingsScreen}
         options={{
           title: 'Settings',
-          headerLeft: ({ onPress }) => (
-            <TouchableOpacity
-              onPress={onPress}
-              style={{ marginLeft: 15 }}
-              activeOpacity={0.7}
-            >
-              <Icon name="arrow-left" size={24} color="#F5F5F5" />
-            </TouchableOpacity>
-          ),
-        }}
-      />
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{
-          title: 'Login',
-          headerLeft: ({ onPress }) => (
-            <TouchableOpacity
-              onPress={onPress}
-              style={{ marginLeft: 15 }}
-              activeOpacity={0.7}
-            >
-              <Icon name="arrow-left" size={24} color="#F5F5F5" />
-            </TouchableOpacity>
-          ),
-        }}
-      />
-      <Stack.Screen
-        name="SignUp"
-        component={SignUpScreen}
-        options={{
-          title: 'Sign Up',
           headerLeft: ({ onPress }) => (
             <TouchableOpacity
               onPress={onPress}

@@ -1,5 +1,6 @@
 // utils/axiosInstance.ts
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { triggerLogout } from '../context/AuthContext';
 
 const axiosInstance = axios.create({
@@ -12,9 +13,18 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    // if (accessToken) {
-    //   config.headers.Authorization = `Bearer ${accessToken}`;
-    // }
+    try {
+      // Get token from AsyncStorage
+      const token = await AsyncStorage.getItem('token');
+      
+      if (token) {
+        // Add token to Authorization header
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error('Error getting token from storage:', error);
+    }
+    
     return config;
   },
   error => Promise.reject(error),

@@ -1,16 +1,18 @@
-import {  FlatList } from 'react-native';
+import { FlatList } from 'react-native';
 import React from 'react';
-import { news } from '../../../data/news';
 import NewsCard from './NewsCard';
+import { useGetNews } from '../../../hooks/useGetNews';
 
 const NewsFeed = () => {
+  const { data, isLoading } = useGetNews();
+
+  if (isLoading) return null;
+
   return (
     <FlatList
-      data={news}
+      data={data.data.data}
       keyExtractor={item => item.article_id}
       showsVerticalScrollIndicator={false}
-      onEndReachedThreshold={0.5}
-      onEndReached={() => console.log('Load more articles')} 
       renderItem={({ item }) => <NewsCard item={item} />}
     />
   );

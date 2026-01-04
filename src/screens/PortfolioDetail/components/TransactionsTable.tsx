@@ -13,7 +13,13 @@ interface Transaction {
   buyDate: string;
   shares: number;
   price: number;
+  type?: string;
 }
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toISOString().split('T')[0];
+};
 
 interface TransactionsTableProps {
   transactions: Transaction[];
@@ -29,7 +35,7 @@ const TransactionsTable = ({
   const renderTransactionItem = ({ item }: { item: Transaction }) => (
     <View style={styles.tableRow}>
       <View style={[styles.tableCell, styles.tableCellDate]}>
-        <Text style={styles.tableCellText}>{item.buyDate}</Text>
+        <Text style={styles.tableCellText}>{formatDate(item.buyDate)}</Text>
       </View>
       <View style={[styles.tableCell, styles.tableCellShares]}>
         <Text style={styles.tableCellText}>{item.shares}</Text>

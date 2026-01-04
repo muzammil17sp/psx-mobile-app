@@ -6,7 +6,7 @@ interface MarketSummaryProps {
     symbol: string;
     close: number;
     change: number;
-    changePercent: number; 
+    changePercent: string | number; 
   };
 }
 
@@ -32,7 +32,9 @@ const MarketSummaryCard: React.FC<MarketSummaryProps> = ({ data }) => {
           >
             {isUp ? '+' : ''}
             {data.change.toFixed(2)} (
-            {Math.abs(data.changePercent || 0).toFixed(2)}%)
+            {typeof data.changePercent === 'string' 
+              ? data.changePercent 
+              : `${Math.abs(data.changePercent || 0).toFixed(2)}%`})
           </Text>
         </View>
       </View>

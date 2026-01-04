@@ -4,15 +4,24 @@ import TransactionScreen from '../screens/Transaction/TransactionScreen';
 import PortfolioDetailScreen from '../screens/PortfolioDetail/PortfolioDetailScreen';
 import EditStockScreen from '../screens/EditStock/EditStockScreen';
 import SettingsScreen from '../screens/Settings/SettingsScreen';
+import StockDetailScreen from '../screens/StockDetail/StockDetailScreen';
 import Icon from 'react-native-vector-icons/Feather';
 import { TouchableOpacity } from 'react-native';
 
 export type RootStackParamList = {
   MainTabs: undefined;
-  Transaction: undefined;
+  Transaction: {
+    transactionId?: string;
+    transactionType?: 'buy' | 'sell' | 'dividend';
+    symbol?: string;
+  };
   PortfolioDetail: {
     stockName: string;
     stockSymbol?: string;
+  };
+  StockDetail: {
+    symbol: string;
+    stockName?: string;
   };
   EditStock: {
     stockName: string;
@@ -51,8 +60,37 @@ const AppNavigation = () => {
       <Stack.Screen
         name="Transaction"
         component={TransactionScreen}
-        options={{
-          title: 'Transaction',
+        options={({ route }) => {
+          const params = route.params as any;
+          const isEdit = !!params?.transactionId;
+          const typeLabels: any = {
+            buy: 'Edit Buy Transaction',
+            sell: 'Edit Sell Transaction',
+            dividend: 'Edit Dividend',
+          };
+          const title = isEdit && params?.transactionType
+            ? typeLabels[params.transactionType] || 'Edit Transaction'
+            : 'Add Transaction';
+          
+          return {
+            title,
+            headerLeft: ({ onPress }) => (
+              <TouchableOpacity
+                onPress={onPress}
+                style={{ marginLeft: 15 }}
+                activeOpacity={0.7}
+              >
+                <Icon name="arrow-left" size={24} color="#F5F5F5" />
+              </TouchableOpacity>
+            ),
+          };
+        }}
+      />
+      <Stack.Screen
+        name="PortfolioDetail"
+        component={PortfolioDetailScreen}
+        options={({ route }) => ({
+          title: route.params?.stockName || 'Portfolio Details',
           headerLeft: ({ onPress }) => (
             <TouchableOpacity
               onPress={onPress}
@@ -62,13 +100,13 @@ const AppNavigation = () => {
               <Icon name="arrow-left" size={24} color="#F5F5F5" />
             </TouchableOpacity>
           ),
-        }}
+        })}
       />
       <Stack.Screen
-        name="PortfolioDetail"
-        component={PortfolioDetailScreen}
+        name="StockDetail"
+        component={StockDetailScreen}
         options={({ route }) => ({
-          title: route.params?.stockName || 'Portfolio Details',
+          title: route.params?.symbol || 'Stock Details',
           headerLeft: ({ onPress }) => (
             <TouchableOpacity
               onPress={onPress}

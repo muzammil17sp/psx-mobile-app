@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,17 +7,79 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AutoComplete from '../../../components/common/AutoComplete';
+import { useCreateTransaction, useUpdateTransaction } from '../../../hooks/usePortfolio';
+import { useNavigation } from '@react-navigation/native';
+import { getStockPrice } from '../../../api/stock.api';
 
-const BuyTradeTab = () => {
-  const [stockSymbol, setStockSymbol] = useState('');
-  const [shares, setShares] = useState('');
-  const [buyPrice, setBuyPrice] = useState('');
-  const [commissionPerShare, setCommissionPerShare] = useState('');
-  const [purchaseDate, setPurchaseDate] = useState(new Date());
+interface BuyTradeTabProps {
+  transactionId?: string;
+  initialData?: any;
+  initialSymbol?: string;
+}
+
+const BuyTradeTab = ({ transactionId, initialData, initialSymbol }: BuyTradeTabProps) => {
+  const navigation = useNavigation();
+  const isEditMode = !!transactionId;
+  const createTransaction = useCreateTransaction();
+  const updateTransaction = useUpdateTransaction();
+
+  const [stockSymbol, setStockSymbol] = useState(initialSymbol || initialData?.symbol || '');
+  const [shares, setShares] = useState(initialData?.shares?.toString() || '');
+  const [buyPrice, setBuyPrice] = useState(initialData?.price?.toString() || '');
+  const [commissionPerShare, setCommissionPerShare] = useState(
+    initialData?.commissionPerShare?.toString() || ''
+  );
+  const [purchaseDate, setPurchaseDate] = useState(
+    initialData?.date ? new Date(initialData.date) : new Date()
+  );
+  const [notes, setNotes] = useState(initialData?.notes || '');
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingPrice, setIsLoadingPrice] = useState(false);
+
+  const handleStockSelect = async (symbol: string, price?: number) => {
+    setStockSymbol(symbol);
+    
+    // If price is provided from autocomplete, use it
+    if (price) {
+      setBuyPrice(price.toString());
+    } else {
+      // Otherwise, fetch current price from PSX Terminal API
+      setIsLoadingPrice(true);
+      try {
+        const response = await getStockPrice(symbol);
+        if (response.success && response.data) {
+          const currentPrice = response.data.price || response.data.curr;
+          if (currentPrice) {
+            setBuyPrice(currentPrice.toString());
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching stock price:', error);
+        // Don't show error, just leave price empty
+      } finally {
+        setIsLoadingPrice(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (initialData) {
+      setStockSymbol(initialData.symbol || '');
+      setShares(initialData.shares?.toString() || '');
+      setBuyPrice(initialData.price?.toString() || '');
+      setCommissionPerShare(initialData.commissionPerShare?.toString() || '');
+      setPurchaseDate(initialData.date ? new Date(initialData.date) : new Date());
+      setNotes(initialData.notes || '');
+    } else if (initialSymbol && !stockSymbol) {
+      setStockSymbol(initialSymbol);
+    }
+  }, [initialData, initialSymbol]);
 
   const formatDate = (date: Date) => {
     const year = date.getFullYear();
@@ -35,15 +97,64 @@ const BuyTradeTab = () => {
     }
   };
 
-  const handleSubmit = () => {
-    // TODO: Implement form submission
-    console.log('Buy Trade Submitted:', {
-      stockSymbol,
-      shares: Number(shares),
-      buyPrice: Number(buyPrice),
-      commissionPerShare: Number(commissionPerShare),
-      purchaseDate: formatDate(purchaseDate),
-    });
+  const handleSubmit = async () => {
+    // Validation
+    if (!stockSymbol.trim()) {
+      Alert.alert('Error', 'Please select a stock symbol');
+      return;
+    }
+
+    if (!shares || Number(shares) <= 0) {
+      Alert.alert('Error', 'Please enter a valid number of shares');
+      return;
+    }
+
+    if (!buyPrice || Number(buyPrice) < 0) {
+      Alert.alert('Error', 'Please enter a valid buy price');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const transactionData = {
+        type: 'buy' as const,
+        symbol: stockSymbol.toUpperCase(),
+        shares: Number(shares),
+        price: Number(buyPrice),
+        commissionPerShare: Number(commissionPerShare || 0),
+        date: formatDate(purchaseDate),
+        notes: notes.trim(),
+      };
+
+      if (isEditMode && transactionId) {
+        await updateTransaction.mutateAsync({
+          id: transactionId,
+          data: {
+            shares: transactionData.shares,
+            price: transactionData.price,
+            commissionPerShare: transactionData.commissionPerShare,
+            date: transactionData.date,
+            notes: transactionData.notes,
+          },
+        });
+        Alert.alert('Success', 'Buy transaction updated successfully', [
+          { text: 'OK', onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        await createTransaction.mutateAsync(transactionData);
+        Alert.alert('Success', 'Buy transaction created successfully', [
+          { text: 'OK', onPress: () => navigation.goBack() },
+        ]);
+      }
+    } catch (error: any) {
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Failed to save transaction'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -55,7 +166,17 @@ const BuyTradeTab = () => {
       <View style={styles.formGroup}>
         <Text style={styles.label}>Stock Symbol</Text>
         <View style={styles.autocompleteWrapper}>
-          <AutoComplete value={stockSymbol} onChange={setStockSymbol} />
+          <AutoComplete
+            value={stockSymbol}
+            onChange={setStockSymbol}
+            onSelect={handleStockSelect}
+          />
+          {isLoadingPrice && (
+            <View style={styles.priceLoadingContainer}>
+              <ActivityIndicator size="small" color="#81C784" />
+              <Text style={styles.priceLoadingText}>Loading current price...</Text>
+            </View>
+          )}
         </View>
       </View>
 
@@ -77,7 +198,7 @@ const BuyTradeTab = () => {
           style={styles.input}
           value={buyPrice}
           onChangeText={setBuyPrice}
-          placeholder="Enter buy price"
+          placeholder="Enter buy price (auto-filled from current price)"
           placeholderTextColor="#757575"
           keyboardType="numeric"
         />
@@ -92,6 +213,19 @@ const BuyTradeTab = () => {
           placeholder="Enter commission per share"
           placeholderTextColor="#757575"
           keyboardType="numeric"
+        />
+      </View>
+
+      <View style={styles.formGroup}>
+        <Text style={styles.label}>Notes (Optional)</Text>
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          value={notes}
+          onChangeText={setNotes}
+          placeholder="Add any notes..."
+          placeholderTextColor="#757575"
+          multiline
+          numberOfLines={3}
         />
       </View>
 
@@ -129,8 +263,18 @@ const BuyTradeTab = () => {
         )}
       </View>
 
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>Submit Buy Trade</Text>
+      <TouchableOpacity
+        style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+        onPress={handleSubmit}
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? (
+          <ActivityIndicator color="#FFFFFF" />
+        ) : (
+          <Text style={styles.submitButtonText}>
+            {isEditMode ? 'Update Buy Trade' : 'Submit Buy Trade'}
+          </Text>
+        )}
       </TouchableOpacity>
     </ScrollView>
   );
@@ -165,7 +309,7 @@ const styles = StyleSheet.create({
     minHeight: 50,
   },
   autocompleteWrapper: {
-    marginHorizontal: 0,
+    width: '100%',
   },
   dateInput: {
     backgroundColor: '#1E1E1E',
@@ -232,6 +376,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: 0.5,
+  },
+  submitButtonDisabled: {
+    opacity: 0.6,
+  },
+  textArea: {
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  priceLoadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 8,
+  },
+  priceLoadingText: {
+    color: '#81C784',
+    fontSize: 12,
   },
 });
 

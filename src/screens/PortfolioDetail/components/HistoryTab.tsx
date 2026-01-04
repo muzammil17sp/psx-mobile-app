@@ -1,65 +1,74 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, FlatList } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useHoldingBySymbol, useDeleteTransaction } from '../../../hooks/usePortfolio';
+
+type RootStackParamList = {
+  Transaction: {
+    transactionId?: string;
+    transactionType?: 'buy' | 'sell' | 'dividend';
+    symbol?: string;
+  };
+};
+
+type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 interface HistoryTabProps {
   stockName: string;
   stockSymbol?: string;
 }
 
-interface SellTrade {
-  id: string;
-  date: string;
-  qty: number;
-  price: number;
-  value: number;
-  pnl: number;
-}
-
-interface Dividend {
-  id: string;
-  date: string;
-  shares: number;
-  divPerShare: number;
-  totalDividend: number;
-}
-
 const HistoryTab = ({ stockName, stockSymbol }: HistoryTabProps) => {
-  // Mock data - replace with real data later
-  const mockSellTrades: SellTrade[] = [
-    {
-      id: '1',
-      date: '2025-03-15',
-      qty: 50,
-      price: 160.25,
-      value: 8012.5,
-      pnl: 371.0,
-    },
-    {
-      id: '2',
-      date: '2025-02-10',
-      qty: 25,
-      price: 157.5,
-      value: 3937.5,
-      pnl: 116.75,
-    },
-  ];
+  const navigation = useNavigation<NavigationProp>();
+  const { data: holdingData, isLoading } = useHoldingBySymbol(stockSymbol || '');
+  const deleteTransaction = useDeleteTransaction();
 
-  const mockDividends: Dividend[] = [
-    {
-      id: '1',
-      date: '2025-03-01',
-      shares: 225,
-      divPerShare: 2.5,
-      totalDividend: 562.5,
-    },
-    {
-      id: '2',
-      date: '2024-12-15',
-      shares: 225,
-      divPerShare: 2.0,
-      totalDividend: 450.0,
-    },
-  ];
+  const sellTrades = holdingData?.data?.transactions?.filter(
+    (tx: any) => tx.type === 'sell'
+  ) || [];
+
+  const dividends = holdingData?.data?.transactions?.filter(
+    (tx: any) => tx.type === 'dividend'
+  ) || [];
+
+  // Calculate P&L for sell trades (simplified - using average price)
+  const avgPrice = holdingData?.data?.averageBuyPrice || 0;
+  const sellTradesWithPL = sellTrades.map((tx: any) => ({
+    ...tx,
+    value: tx.totalAmount || tx.shares * tx.price,
+    pnl: (tx.price - avgPrice) * tx.shares,
+  }));
+
+  const handleEdit = (transaction: any) => {
+    navigation.navigate('Transaction', {
+      transactionId: transaction._id,
+      transactionType: transaction.type,
+      symbol: transaction.symbol,
+    });
+  };
+
+  const handleDelete = (transaction: any) => {
+    Alert.alert(
+      'Delete Transaction',
+      `Are you sure you want to delete this ${transaction.type} transaction?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteTransaction.mutateAsync(transaction._id);
+              Alert.alert('Success', 'Transaction deleted successfully');
+            } catch (error: any) {
+              Alert.alert('Error', error.response?.data?.message || 'Failed to delete transaction');
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const BULL_COLOR = '#81C784';
   const BEAR_COLOR = '#E57373';
@@ -76,11 +85,21 @@ const HistoryTab = ({ stockName, stockSymbol }: HistoryTabProps) => {
     return `${value >= 0 ? '+' : '-'}${formatted}`;
   };
 
-  const renderSellTradeItem = ({ item }: { item: SellTrade }) => (
-    <View style={styles.tableRow}>
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+  };
+
+  const renderSellTradeItem = ({ item }: { item: any }) => (
+    <TouchableOpacity
+      style={styles.tableRow}
+      onPress={() => handleEdit(item)}
+      onLongPress={() => handleDelete(item)}
+      activeOpacity={0.7}
+    >
       <View style={[styles.tableCell, styles.dateQtyCell]}>
-        <Text style={styles.tableCellText}>{item.date}</Text>
-        <Text style={styles.tableCellSubtext}>Qty: {item.qty}</Text>
+        <Text style={styles.tableCellText}>{formatDate(item.date)}</Text>
+        <Text style={styles.tableCellSubtext}>Qty: {item.shares}</Text>
       </View>
       <View style={styles.tableCell}>
         <Text style={styles.tableCellText}>{item.price.toFixed(2)}</Text>
@@ -98,29 +117,37 @@ const HistoryTab = ({ stockName, stockSymbol }: HistoryTabProps) => {
           {formatPnl(item.pnl)}
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
-  const renderDividendItem = ({ item }: { item: Dividend }) => (
-    <View style={styles.tableRow}>
-      <View style={styles.tableCell}>
-        <Text style={styles.tableCellText}>{item.date}</Text>
-      </View>
-      <View style={styles.tableCell}>
-        <Text style={styles.tableCellText}>{item.shares}</Text>
-      </View>
-      <View style={styles.tableCell}>
-        <Text style={styles.tableCellText}>
-          {item.divPerShare.toFixed(2)}
-        </Text>
-      </View>
-      <View style={styles.tableCell}>
-        <Text style={styles.tableCellText}>
-          {formatCurrency(item.totalDividend)}
-        </Text>
-      </View>
-    </View>
-  );
+  const renderDividendItem = ({ item }: { item: any }) => {
+    const totalDividend = item.price * item.shares; // price is dividendPerShare
+    return (
+      <TouchableOpacity
+        style={styles.tableRow}
+        onPress={() => handleEdit(item)}
+        onLongPress={() => handleDelete(item)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.tableCell}>
+          <Text style={styles.tableCellText}>{formatDate(item.date)}</Text>
+        </View>
+        <View style={styles.tableCell}>
+          <Text style={styles.tableCellText}>{item.shares}</Text>
+        </View>
+        <View style={styles.tableCell}>
+          <Text style={styles.tableCellText}>
+            {item.price.toFixed(2)}
+          </Text>
+        </View>
+        <View style={styles.tableCell}>
+          <Text style={styles.tableCellText}>
+            {formatCurrency(totalDividend)}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <ScrollView
@@ -145,16 +172,21 @@ const HistoryTab = ({ stockName, stockSymbol }: HistoryTabProps) => {
             <Text style={styles.tableHeaderText}>P&L</Text>
           </View>
         </View>
-        {mockSellTrades.length > 0 ? (
+        {isLoading ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>Loading...</Text>
+          </View>
+        ) : sellTradesWithPL.length > 0 ? (
           <FlatList
-            data={mockSellTrades}
+            data={sellTradesWithPL}
             renderItem={renderSellTradeItem}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item._id}
             scrollEnabled={false}
           />
         ) : (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No sell trades</Text>
+            <Text style={styles.emptyStateSubtext}>Tap and hold to edit, long press to delete</Text>
           </View>
         )}
       </View>
@@ -176,16 +208,21 @@ const HistoryTab = ({ stockName, stockSymbol }: HistoryTabProps) => {
             <Text style={styles.tableHeaderText}>Total Dividend</Text>
           </View>
         </View>
-        {mockDividends.length > 0 ? (
+        {isLoading ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>Loading...</Text>
+          </View>
+        ) : dividends.length > 0 ? (
           <FlatList
-            data={mockDividends}
+            data={dividends}
             renderItem={renderDividendItem}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item._id}
             scrollEnabled={false}
           />
         ) : (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>No dividends</Text>
+            <Text style={styles.emptyStateSubtext}>Tap to edit, long press to delete</Text>
           </View>
         )}
       </View>
@@ -270,6 +307,11 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 14,
     color: '#757575',
+  },
+  emptyStateSubtext: {
+    fontSize: 12,
+    color: '#9E9E9E',
+    marginTop: 4,
   },
 });
 

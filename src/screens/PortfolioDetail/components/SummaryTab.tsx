@@ -12,6 +12,21 @@ interface SummaryTabProps {
   currentPrice: number;
 }
 
+interface SummaryTabProps {
+  stockName: string;
+  stockSymbol?: string;
+  totalInvestment: number;
+  profit: number;
+  purchasedCost: number;
+  avgPrice: number;
+  totalShares: number;
+  currentPrice: number;
+  realizedPL?: number;
+  totalDividends?: number;
+  sellCostBasis?: number;
+  sellProceeds?: number;
+}
+
 const SummaryTab = ({
   stockName,
   stockSymbol,
@@ -21,16 +36,26 @@ const SummaryTab = ({
   avgPrice,
   totalShares,
   currentPrice,
+  realizedPL = 0,
+  totalDividends = 0,
+  sellCostBasis = 0,
+  sellProceeds = 0,
 }: SummaryTabProps) => {
   // Calculate values for the table
-  const currentValue = totalShares * currentPrice;
-  const buyCost = purchasedCost;
-  const sellCost = 0; // Mock data - replace with actual sell cost
-  const sellValue = 0; // Mock data - replace with actual sell value
-  const sellPnl = 0; // Mock data - replace with actual sell P&L
+  // Buy row: Cost basis of remaining shares, current value, unrealized P&L
+  const buyCost = avgPrice * totalShares; // Cost basis of remaining shares
+  const buyValue = totalShares * currentPrice; // Current value of remaining shares
+  const buyPnl = profit; // Unrealized P&L
+  
+  // Sell row: Cost basis of sold shares, proceeds from sells, realized P&L
+  const sellCost = sellCostBasis; // Cost basis of sold shares
+  const sellValue = sellProceeds; // Proceeds from sold shares
+  const sellPnl = realizedPL; // Realized P&L from sells
+  
+  // Total row: Sum of buy and sell
   const totalCost = buyCost + sellCost;
-  const totalValue = currentValue + sellValue;
-  const totalPnl = profit + sellPnl;
+  const totalValue = buyValue + sellValue;
+  const totalPnl = buyPnl + sellPnl;
 
   const BULL_COLOR = '#81C784';
   const BEAR_COLOR = '#E57373';
@@ -98,16 +123,16 @@ const SummaryTab = ({
             <Text style={styles.tableCellText}>{formatCurrency(buyCost)}</Text>
           </View>
           <View style={styles.tableCell}>
-            <Text style={styles.tableCellText}>{formatCurrency(currentValue)}</Text>
+            <Text style={styles.tableCellText}>{formatCurrency(buyValue)}</Text>
           </View>
           <View style={styles.tableCell}>
             <Text
               style={[
                 styles.tableCellText,
-                { color: profit >= 0 ? BULL_COLOR : BEAR_COLOR },
+                { color: buyPnl >= 0 ? BULL_COLOR : BEAR_COLOR },
               ]}
             >
-              {formatPnl(profit)}
+              {formatPnl(buyPnl)}
             </Text>
           </View>
         </View>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,16 +7,47 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AutoComplete from '../../../components/common/AutoComplete';
+import { useCreateTransaction, useUpdateTransaction } from '../../../hooks/usePortfolio';
+import { useNavigation } from '@react-navigation/native';
 
-const AddDividendTab = () => {
-  const [stockSymbol, setStockSymbol] = useState('');
-  const [shares, setShares] = useState('');
-  const [dividendPerShare, setDividendPerShare] = useState('');
-  const [dividendDate, setDividendDate] = useState(new Date());
+interface AddDividendTabProps {
+  transactionId?: string;
+  initialData?: any;
+  initialSymbol?: string;
+}
+
+const AddDividendTab = ({ transactionId, initialData, initialSymbol }: AddDividendTabProps) => {
+  const navigation = useNavigation();
+  const isEditMode = !!transactionId;
+  const createTransaction = useCreateTransaction();
+  const updateTransaction = useUpdateTransaction();
+
+  const [stockSymbol, setStockSymbol] = useState(initialSymbol || initialData?.symbol || '');
+  const [shares, setShares] = useState(initialData?.shares?.toString() || '');
+  const [dividendPerShare, setDividendPerShare] = useState(initialData?.price?.toString() || '');
+  const [dividendDate, setDividendDate] = useState(
+    initialData?.date ? new Date(initialData.date) : new Date()
+  );
+  const [notes, setNotes] = useState(initialData?.notes || '');
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (initialData) {
+      setStockSymbol(initialData.symbol || '');
+      setShares(initialData.shares?.toString() || '');
+      setDividendPerShare(initialData.price?.toString() || '');
+      setDividendDate(initialData.date ? new Date(initialData.date) : new Date());
+      setNotes(initialData.notes || '');
+    } else if (initialSymbol && !stockSymbol) {
+      setStockSymbol(initialSymbol);
+    }
+  }, [initialData, initialSymbol]);
 
   const formatDate = (date: Date) => {
     const year = date.getFullYear();
@@ -34,14 +65,63 @@ const AddDividendTab = () => {
     }
   };
 
-  const handleSubmit = () => {
-    // TODO: Implement form submission
-    console.log('Add Dividend Submitted:', {
-      stockSymbol,
-      shares: Number(shares),
-      dividendPerShare: Number(dividendPerShare),
-      dividendDate: formatDate(dividendDate),
-    });
+  const handleSubmit = async () => {
+    // Validation
+    if (!stockSymbol.trim()) {
+      Alert.alert('Error', 'Please select a stock symbol');
+      return;
+    }
+
+    if (!shares || Number(shares) <= 0) {
+      Alert.alert('Error', 'Please enter a valid number of shares');
+      return;
+    }
+
+    if (!dividendPerShare || Number(dividendPerShare) < 0) {
+      Alert.alert('Error', 'Please enter a valid dividend per share');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const transactionData = {
+        type: 'dividend' as const,
+        symbol: stockSymbol.toUpperCase(),
+        shares: Number(shares),
+        price: Number(dividendPerShare), // For dividend, price is dividendPerShare
+        commissionPerShare: 0,
+        date: formatDate(dividendDate),
+        notes: notes.trim(),
+      };
+
+      if (isEditMode && transactionId) {
+        await updateTransaction.mutateAsync({
+          id: transactionId,
+          data: {
+            shares: transactionData.shares,
+            price: transactionData.price,
+            date: transactionData.date,
+            notes: transactionData.notes,
+          },
+        });
+        Alert.alert('Success', 'Dividend updated successfully', [
+          { text: 'OK', onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        await createTransaction.mutateAsync(transactionData);
+        Alert.alert('Success', 'Dividend added successfully', [
+          { text: 'OK', onPress: () => navigation.goBack() },
+        ]);
+      }
+    } catch (error: any) {
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Failed to save dividend'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -82,6 +162,19 @@ const AddDividendTab = () => {
       </View>
 
       <View style={styles.formGroup}>
+        <Text style={styles.label}>Notes (Optional)</Text>
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          value={notes}
+          onChangeText={setNotes}
+          placeholder="Add any notes..."
+          placeholderTextColor="#757575"
+          multiline
+          numberOfLines={3}
+        />
+      </View>
+
+      <View style={styles.formGroup}>
         <Text style={styles.label}>Dividend Date</Text>
         <TouchableOpacity
           style={styles.dateInput}
@@ -115,8 +208,18 @@ const AddDividendTab = () => {
         )}
       </View>
 
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>Submit Dividend</Text>
+      <TouchableOpacity
+        style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+        onPress={handleSubmit}
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? (
+          <ActivityIndicator color="#FFFFFF" />
+        ) : (
+          <Text style={styles.submitButtonText}>
+            {isEditMode ? 'Update Dividend' : 'Submit Dividend'}
+          </Text>
+        )}
       </TouchableOpacity>
     </ScrollView>
   );
@@ -151,7 +254,7 @@ const styles = StyleSheet.create({
     minHeight: 50,
   },
   autocompleteWrapper: {
-    marginHorizontal: 0,
+    width: '100%',
   },
   dateInput: {
     backgroundColor: '#1E1E1E',
@@ -218,6 +321,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: 0.5,
+  },
+  submitButtonDisabled: {
+    opacity: 0.6,
+  },
+  textArea: {
+    minHeight: 80,
+    textAlignVertical: 'top',
   },
 });
 

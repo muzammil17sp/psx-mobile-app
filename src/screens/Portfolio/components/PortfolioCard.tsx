@@ -1,34 +1,58 @@
 import { View, Text, StyleSheet } from 'react-native';
 import React from 'react';
 
-const PortfolioCard = () => {
+interface PortfolioCardProps {
+  totals?: {
+    totalInvested: number;
+    currentValue: number;
+    totalPL: number;
+    totalReturnPercent: number;
+    totalDividends: number;
+  };
+}
+
+const PortfolioCard = ({ totals }: PortfolioCardProps) => {
   const BULL_COLOR = '#81C784';
   const BEAR_COLOR = '#E57373';
+
+  const totalReturn = totals?.totalReturn || 0;
+  const totalReturnPercent = totals?.totalReturnPercent || 0;
+  const currentValue = totals?.currentValue || 0;
+  const totalInvested = totals?.totalInvested || 0;
+  const totalDividends = totals?.totalDividends || 0;
+
+  const isPositive = totalReturn >= 0;
 
   return (
     <View style={styles.card}>
       <Text style={styles.title}>My Portfolio</Text>
-      <Text style={{ ...styles.title, ...styles.amount }}>R: 500000</Text>
+      <Text style={{ ...styles.title, ...styles.amount }}>
+        Rs. {currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+      </Text>
       <View style={styles.detailContainer}>
         <View style={styles.detail}>
           <Text style={styles.detailTitle}>Investment</Text>
-          <Text style={styles.detailAmount}>50000</Text>
+          <Text style={styles.detailAmount}>
+            {totalInvested.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </Text>
         </View>
         <View style={styles.detail}>
           <Text style={styles.detailTitle}>Gain/Loss %</Text>
           <Text
             style={[
               styles.detailAmount,
-              { color: true ? BULL_COLOR : BEAR_COLOR },
+              { color: isPositive ? BULL_COLOR : BEAR_COLOR },
             ]}
           >
-            {true ? '+' : ''}
-            {(0.7837).toFixed(2)} ({Math.abs(0.3033 || 0).toFixed(2)}%)
+            {isPositive ? '+' : ''}
+            {totalReturn.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ({Math.abs(totalReturnPercent).toFixed(2)}%)
           </Text>
         </View>
         <View style={styles.detail}>
-          <Text style={styles.detailTitle}>Amount</Text>
-          <Text style={styles.detailAmount}>10000</Text>
+          <Text style={styles.detailTitle}>Dividends</Text>
+          <Text style={styles.detailAmount}>
+            {totalDividends.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </Text>
         </View>
       </View>
     </View>

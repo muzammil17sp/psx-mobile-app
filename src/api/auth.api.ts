@@ -3,6 +3,7 @@ import axiosInstance from './axiosClient';
 interface FormData {
   email: string;
   password: string;
+  fcmToken?: string;
 }
 
 export const login = async (data: FormData) => {
@@ -12,6 +13,11 @@ export const login = async (data: FormData) => {
 
 export const register = async (data: FormData) => {
   const response = await axiosInstance.post('/auth/register', data);
+  return response.data;
+};
+
+export const updateFcmToken = async (fcmToken: string) => {
+  const response = await axiosInstance.put('/auth/fcm-token', { fcmToken });
   return response.data;
 };
 

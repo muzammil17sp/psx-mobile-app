@@ -80,15 +80,6 @@ const SummaryTab = ({
     >
       {/* Stock Logo and Name */}
       <View style={styles.stockHeader}>
-        <View style={styles.imageContainer}>
-          <Image
-            style={styles.image}
-            resizeMode="contain"
-            source={{
-              uri: 'https://www.lucky-cement.com/wp-content/uploads/2017/02/lucky-logo.png',
-            }}
-          />
-        </View>
         <View style={styles.stockInfo}>
           <Text style={styles.stockName}>{stockName}</Text>
           {stockSymbol && (

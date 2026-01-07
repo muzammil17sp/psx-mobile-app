@@ -11,3 +11,4 @@ export const searchStocks = async (query: string, limit = 10) => {
   return response.data;
 };
 
+

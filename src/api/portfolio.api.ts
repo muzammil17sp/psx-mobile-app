@@ -72,3 +72,4 @@ export const getHoldingBySymbol = async (symbol: string) => {
   return response.data;
 };
 
+

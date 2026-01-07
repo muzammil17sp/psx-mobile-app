@@ -51,7 +51,6 @@ export const useFcmToken = () => {
     requestPermissionAndToken();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   useEffect(() => {
     if (isLogin && fcmToken) {
       sendTokenToBackend(fcmToken);

@@ -32,12 +32,19 @@ interface PortfolioStockProps {
     unrealizedPL: number;
     unrealizedPLPercent: number;
   };
+  stockUpdate?: {
+    symbol: string;
+    price: number;
+    change: number;
+    changePercent: number;
+  } | null;
 }
 
 const PortfolioStock = ({ 
   stockName, 
   stockSymbol,
-  holding
+  holding,
+  stockUpdate
 }: PortfolioStockProps) => {
   const navigation = useNavigation<NavigationProp>();
   const BULL_COLOR = '#81C784';
@@ -47,16 +54,14 @@ const PortfolioStock = ({
   const name = stockName || symbol;
   const averagePrice = holding?.averageBuyPrice || 0;
   const totalShares = holding?.remainingShares || 0;
-  // Investment should be calculated as average price * remaining shares (cost basis of current holdings)
   const investment = averagePrice * totalShares;
-  const currentValue = holding?.currentValue || 0;
-  const totalPL = holding?.totalPL || 0;
   
-  // Calculate total return percentage if not provided or calculate it
-  let totalReturnPercent = holding?.totalReturnPercent;
-  if (totalReturnPercent === undefined || totalReturnPercent === null) {
-    totalReturnPercent = investment > 0 ? (totalPL / investment) * 100 : 0;
-  }
+  // Use real-time price if available, otherwise use holding's current value
+  const currentPrice = stockUpdate?.price || (holding?.currentValue / totalShares) || 0;
+  const currentValue = currentPrice * totalShares;
+  const totalPL = currentValue - investment;
+  
+  let totalReturnPercent = investment > 0 ? (totalPL / investment) * 100 : 0;
   
   const isPositive = totalPL >= 0;
 

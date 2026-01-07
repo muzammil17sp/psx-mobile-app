@@ -20,3 +20,4 @@ export const checkWishlist = async (symbol: string) => {
   return response.data;
 };
 
+

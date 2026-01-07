@@ -5,3 +5,4 @@ export const getKSE100 = async () => {
   return response.data;
 };
 
+

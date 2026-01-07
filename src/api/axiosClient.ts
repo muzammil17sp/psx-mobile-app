@@ -4,9 +4,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { triggerLogout } from '../context/AuthContext';
 
 const BASE_URL = Platform.select({
-  ios: 'http://localhost:3002/api',
-  android: 'http://10.0.2.2:3002/api', // Emulator
-  default: 'http://localhost:3002/api', // fallback
+  ios: 'https://psx-market-api-production.up.railway.app/api',
+  android: 'https://psx-market-api-production.up.railway.app/api', // Emulator
+  default: 'https://psx-market-api-production.up.railway.app/api', // fallback
 });
 
 const axiosInstance = axios.create({

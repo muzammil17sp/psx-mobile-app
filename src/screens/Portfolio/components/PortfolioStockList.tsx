@@ -4,9 +4,10 @@ import PortfolioStock from './PortfolioStock';
 
 interface PortfolioStockListProps {
   holdings: any[];
+  getStockUpdate?: (symbol: string) => any;
 }
 
-const PortfolioStockList = ({ holdings }: PortfolioStockListProps) => {
+const PortfolioStockList = ({ holdings,  getStockUpdate }: PortfolioStockListProps) => {
   if (holdings.length === 0) {
     return (
       <View style={styles.container}>
@@ -30,6 +31,7 @@ const PortfolioStockList = ({ holdings }: PortfolioStockListProps) => {
             stockName={item.symbol}
             stockSymbol={item.symbol}
             holding={item}
+            stockUpdate={getStockUpdate?.(item.symbol)}
           />
         )}
         style={styles.list}

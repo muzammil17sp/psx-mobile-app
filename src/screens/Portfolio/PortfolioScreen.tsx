@@ -1,11 +1,12 @@
 import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import PortfolioCard from './components/PortfolioCard';
 import PortfolioStockList from './components/PortfolioStockList';
 import PortfolioActions from './components/PortfolioActions';
 import { usePortfolioSummary } from '../../hooks/usePortfolio';
+import { usePortfolioSocket } from '../../hooks/usePortfolioSocket';
 
 type RootStackParamList = {
   MainTabs: undefined;
@@ -25,6 +26,11 @@ type NavigationProp = StackNavigationProp<RootStackParamList>;
 const PortfolioScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const { data: portfolioData, isLoading } = usePortfolioSummary();
+
+  const holdings = portfolioData?.data?.holdings || [];
+  const symbols = useMemo(() => holdings.map(h => h.symbol), [holdings]);
+  
+  const {getStockUpdate } = usePortfolioSocket(symbols);
 
   const handleEditPortfolio = () => {
     // TODO: Implement edit portfolio functionality
@@ -51,7 +57,10 @@ const PortfolioScreen = () => {
       ) : (
         <>
           <PortfolioCard totals={totals} />
-          <PortfolioStockList holdings={portfolioData?.data?.holdings || []} />
+          <PortfolioStockList 
+            holdings={holdings} 
+            getStockUpdate={getStockUpdate}
+          />
         </>
       )}
     </View>

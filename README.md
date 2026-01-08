@@ -1,97 +1,102 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 📈 PSX – Stock Portfolio & Market Tracking App
 
-# Getting Started
+A **real-time stock market & portfolio management mobile application** built with **React Native**, specifically tailored for the **Pakistan Stock Exchange (PSX)**. 
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+This app enables users to track live market indexes, manage investment portfolios, analyze real-time gains/losses, view stock fundamentals, and receive push notifications for market events.
 
-## Step 1: Start Metro
+---
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## 🎥 App Demo
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+▶️ **Full App Walkthrough** [Watch the Demo](https://go.screenpal.com/watch/cOVj6znrZqx)
 
-```sh
-# Using npm
-npm start
+---
 
-# OR using Yarn
-yarn start
+## 📱 App Screenshots
+
+| 🏠 Home & News | 📊 Stock Explorer | 📈 Stock Details |
+|---|---|---|
+| [![home.png](https://i.postimg.cc/9fPJ1hb8/Untitled-2.png)](https://postimg.cc/c6KxWTC2) | [![stocks-list.png](https://i.postimg.cc/J4g6zKGm/Untitled.png)](https://postimg.cc/Wt4DkMzs) | [![stock-detail.png](https://i.postimg.cc/dtXHVnLM/Untitled-4.png)](https://postimg.cc/CB2wDnPc) |
+
+| 💼 Portfolio | 🔄 Transactions | 📌 Performance |
+|---|---|---|
+| [![portfolio.png](https://i.postimg.cc/ZKg75jCm/Untitled-3.png)](https://postimg.cc/mznTM1Xd) | [![manage-transaction.png](https://i.postimg.cc/wv0F8QCg/Untitled-5.png)](https://postimg.cc/WFz2hwnS) | [![summary.png](https://i.postimg.cc/9QhmKPVK/summart.png)](https://postimg.cc/4mWRh9YQ) |
+
+---
+
+## 🚀 Key Features
+
+* 📡 **Real-Time Index Updates**: Live market data streaming via WebSockets—no manual refresh required.
+* 📰 **Financial News Feed**: Stay updated with the latest finance news directly on the home screen.
+* 💼 **Advanced Portfolio Management**:
+    * Track buying/selling transactions.
+    * Manage and log stock dividends.
+    * **Live Profit & Loss** calculations based on current market prices.
+* ⭐ **Personalized Wishlist**: Save your favorite stocks for quick monitoring.
+* 📊 **Deep Stock Analytics**: Interactive charts, company fundamentals, and historical dividend data.
+* 🔔 **Smart Notifications**: Remote push notifications for market opening/closing (supports Foreground, Background, and Killed states).
+
+---
+
+## 🛠 Tech Stack
+
+### Frontend & Core
+* **React Native `0.83.1`**
+* **TypeScript**
+* **React Navigation v7**
+* **TanStack React Query v5**
+
+### Networking & Realtime
+* **Axios**: REST API integration
+* **Socket.IO Client**: Real-time market price streaming
+
+### Notifications & Services
+* **Firebase Cloud Messaging (FCM)**
+* **Notifee**
+* **AsyncStorage** & **JWT-Decode**
+
+---
+
+## ⚙️ Installation & Setup
+
+### Prerequisites
+Ensure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+
+### Step 1: Clone and Install
+```bash
+# Clone the repository
+git clone <your-repo-url>
+
+# Navigate to project root
+cd psx
+
+# Install dependencies
+npm install
 ```
 
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
+### Step 2: iOS Setup (macOS only)
+## For iOS, run the following commands to install CocoaPods dependencies:
+```bash
+cd ios
 bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
 bundle exec pod install
+cd ..
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+### Step 3: Start Metro Bundler
+## Start the Metro dev server from the root of your project:
+```bash
+npm start
+```
 
-```sh
-# Using npm
+### Step 4: Build and Run
+## With Metro running, open a new terminal window and run:
+# For Android:
+```bash
+npm run android
+```
+# For Ios:
+```bash
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.

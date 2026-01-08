@@ -100,7 +100,7 @@ const WishlistCard = ({ data }: WishlistCardProps) => {
           >
             {isPositive ? '+' : ''}
             {stockData.change.toFixed(2)} (
-            {(stockData.changePercent * 100).toFixed(2) + '%'})
+            {Math.abs(stockData.changePercent || 0).toFixed(2)}%)
           </Text>
         )}
         {data.onRemove && (

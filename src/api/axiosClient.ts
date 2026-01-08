@@ -1,13 +1,10 @@
-import { Platform } from 'react-native';
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { triggerLogout } from '../context/AuthContext';
+import { BACKEND_API_URL } from '@env';
 
-const BASE_URL = Platform.select({
-  ios: 'https://psx-market-api-production.up.railway.app/api',
-  android: 'https://psx-market-api-production.up.railway.app/api', // Emulator
-  default: 'https://psx-market-api-production.up.railway.app/api', // fallback
-});
+
+const BASE_URL = BACKEND_API_URL;
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,

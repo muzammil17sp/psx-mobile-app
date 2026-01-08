@@ -1,12 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Platform } from 'react-native';
-
-const SOCKET_URL = Platform.select({
-  ios: 'https://psx-market-api-production.up.railway.app',
-  android: 'https://psx-market-api-production.up.railway.app',
-  default: 'https://psx-market-api-production.up.railway.app',
-});
+import { SOCKET_URL } from '@env';
 
 interface StockUpdate {
   symbol: string;

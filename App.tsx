@@ -12,7 +12,6 @@ import notifee, { AndroidImportance } from '@notifee/react-native';
 
 const AppContent = () => {
   useFcmToken();
-
   useEffect(() => {
     const requestPermission = async () => {
       if (Platform.OS === 'android' && Platform.Version >= 33) {

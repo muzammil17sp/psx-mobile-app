@@ -78,3 +78,5 @@ yarn-error.log
 # Firebase config (keep local only)
 ios/GoogleService-Info.plist
 android/app/google-services.json
+
+.env

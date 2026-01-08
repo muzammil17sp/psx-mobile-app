@@ -83,7 +83,7 @@ const StockDetailScreen = () => {
               ]}
             >
               {change >= 0 ? '+' : ''}
-              {change.toFixed(2)} ({(changePercent * 100).toFixed(2) + '%'})
+              {change.toFixed(2)} ({Math.abs(changePercent).toFixed(2)}%)
             </Text>
           </View>
         </View>
